@@ -1,0 +1,90 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: T1
+      id: t1
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: T1
+        setup-command: export HOME='/home/runner' && cd Payment && dotnet restore
+        command: export HOME='/home/runner' && cd Payment && dotnet test
+        timeout: 10
+        max-score: 2
+    - name: T2
+      id: t2
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: T2
+        setup-command: export HOME='/home/runner' && cd ATM && dotnet restore
+        command: export HOME='/home/runner' && cd ATM && dotnet test
+        timeout: 10
+        max-score: 2
+    - name: T3
+      id: t3
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: T3
+        setup-command: ''
+        command: cat Payment/disenio.md | grep mermaid.md
+        timeout: 10
+        max-score: 2
+    - name: T4
+      id: t4
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: T4
+        setup-command: ''
+        command: cat ATM/disenio.md | grep mermaid.md
+        timeout: 10
+        max-score: 2
+    - name: T5
+      id: t5
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: T5
+        setup-command: ''
+        command: cat .github/workflows/publish_docs.yml | grep pages
+        timeout: 10
+        max-score: 4
+    - name: T6
+      id: t6
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: T6
+        setup-command: ''
+        command: cat .github/workflows/package_nuget.yml | grep nuget
+        timeout: 10
+        max-score: 5
+    - name: T7
+      id: t7
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: T7
+        setup-command: ''
+        command: cat .github/workflows/release_version.yml | grep release
+        timeout: 10
+        max-score: 3
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        T1_RESULTS: "${{steps.t1.outputs.result}}"
+        T2_RESULTS: "${{steps.t2.outputs.result}}"
+        T3_RESULTS: "${{steps.t3.outputs.result}}"
+        T4_RESULTS: "${{steps.t4.outputs.result}}"
+        T5_RESULTS: "${{steps.t5.outputs.result}}"
+        T6_RESULTS: "${{steps.t6.outputs.result}}"
+        T7_RESULTS: "${{steps.t7.outputs.result}}"
+      with:
+        runners: t1,t2,t3,t4,t5,t6,t7
